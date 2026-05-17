@@ -22,7 +22,12 @@ const {
   getReviewsByYear,
   getReviewsByMonth,
   getReviewsByDay,
-  getReviewsByUserAndRating
+  getReviewsByUserAndRating,
+  getReviewsByCountryAndVerified,
+  getReviewsByHelpfulnessScore,
+  getReviewsByProfile,
+  getReviewLink,
+  getReviewsByImageStatus
 } = require('../controllers/review.controller');
 
 // Main routes for /api/v1/reviews
@@ -47,6 +52,11 @@ router.get('/date/:date', getReviewsByDate);
 router.get('/helpful/:count', getReviewsByHelpfulCount);
 router.get('/positive/:status', getReviewsByPositiveStatus);
 router.get('/country/:country/rating/:rating', getReviewsByCountryAndRating);
+router.get('/country/:country/verified/:status', getReviewsByCountryAndVerified);
+router.get('/helpfulness/:score', getReviewsByHelpfulnessScore);
+router.get('/profile/:profileID', getReviewsByProfile);
+router.get('/review-link/:reviewID', getReviewLink);
+router.get('/image/:status', getReviewsByImageStatus);
 
 // Time-based Filters
 router.get('/year/:year', getReviewsByYear);
