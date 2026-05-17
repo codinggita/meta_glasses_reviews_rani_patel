@@ -209,6 +209,134 @@ const getReviewsByCountryAndRating = async (req, res) => {
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
+// @desc    Fetch country statistics
+const getCountryStats = async (req, res) => {
+  try {
+    const stats = await Review.aggregate([
+      { $match: { country: req.params.country } },
+      {
+        $group: {
+          _id: '$country',
+          totalReviews: { $sum: 1 },
+          averageRating: { $avg: '$rating' }
+        }
+      }
+    ]);
+    if (stats.length > 0) res.json(stats[0]);
+    else res.status(404).json({ message: 'No stats for this country' });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+// @desc    Fetch reviews by year
+const getReviewsByYear = async (req, res) => {
+  try {
+    const reviews = await Review.find({
+      $expr: { $eq: [{ $year: '$date' }, parseInt(req.params.year)] }
+    });
+    res.json(reviews);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+// @desc    Fetch reviews by month
+const getReviewsByMonth = async (req, res) => {
+  try {
+    const reviews = await Review.find({
+      $expr: { $eq: [{ $month: '$date' }, parseInt(req.params.month)] }
+    });
+    res.json(reviews);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+// @desc    Fetch reviews by day
+const getReviewsByDay = async (req, res) => {
+  try {
+    const reviews = await Review.find({
+      $expr: { $eq: [{ $dayOfMonth: '$date' }, parseInt(req.params.day)] }
+    });
+    res.json(reviews);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+// @desc    Fetch user reviews by rating
+const getReviewsByUserAndRating = async (req, res) => {
+  try {
+    const { name, rating } = req.params;
+    const reviews = await Review.find({ name: name, rating: rating });
+    res.json(reviews);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+// @desc    Fetch verified country reviews
+const getReviewsByCountryAndVerified = async (req, res) => {
+  try {
+    const { country, status } = req.params;
+    const isVerified = status === 'true';
+    const reviews = await Review.find({ country: country, verifiedPurchase: isVerified });
+    res.json(reviews);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+// @desc    Fetch reviews by helpfulness score
+const getReviewsByHelpfulnessScore = async (req, res) => {
+  try {
+    const reviews = await Review.find({ helpfulness_score: req.params.score });
+    res.json(reviews);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+// @desc    Fetch reviews by profile ID
+const getReviewsByProfile = async (req, res) => {
+  try {
+    const reviews = await Review.find({ profile: req.params.profileID });
+    res.json(reviews);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+// @desc    Fetch review link
+const getReviewLink = async (req, res) => {
+  try {
+    const review = await Review.findOne({ reviewID: req.params.reviewID }, 'reviewLink reviewID');
+    if (review) {
+      res.json(review);
+    } else {
+      res.status(404).json({ message: 'Review not found' });
+    }
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+// @desc    Fetch reviews with/without images
+const getReviewsByImageStatus = async (req, res) => {
+  try {
+    const hasImage = req.params.status === 'true';
+    let query = {};
+    if (hasImage) {
+      query = { reviewImage: { $exists: true, $ne: '' } };
+    } else {
+      query = { $or: [{ reviewImage: { $exists: false } }, { reviewImage: '' }] };
+    }
+    const reviews = await Review.find(query);
+    res.json(reviews);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
 };
 
 module.exports = {
@@ -228,5 +356,15 @@ module.exports = {
   getReviewsByDate,
   getReviewsByHelpfulCount,
   getReviewsByPositiveStatus,
-  getReviewsByCountryAndRating
+  getReviewsByCountryAndRating,
+  getCountryStats,
+  getReviewsByYear,
+  getReviewsByMonth,
+  getReviewsByDay,
+  getReviewsByUserAndRating,
+  getReviewsByCountryAndVerified,
+  getReviewsByHelpfulnessScore,
+  getReviewsByProfile,
+  getReviewLink,
+  getReviewsByImageStatus
 };
