@@ -1,9 +1,29 @@
 const Review = require('../models/review.model');
 
-// @desc    Fetch all reviews
+// @desc    Fetch all reviews (with Query Parameters support)
 const getAllReviews = async (req, res) => {
   try {
-    const reviews = await Review.find({});
+    let query = {};
+
+    // ==========================================
+    // QUERY PARAMETERS LOGIC
+    // ==========================================
+    if (req.query.rating) query.rating = req.query.rating;
+    if (req.query.country) query.country = req.query.country;
+    
+    if (req.query.verifiedPurchase) {
+      query.verifiedPurchase = req.query.verifiedPurchase === 'True' || req.query.verifiedPurchase === 'true';
+    }
+    
+    if (req.query.positive) {
+      query.is_positive_review = req.query.positive === '1' || req.query.positive === 'true';
+    }
+    
+    if (req.query.minHelpful) {
+      query.helpful = { $gte: parseInt(req.query.minHelpful) };
+    }
+
+    const reviews = await Review.find(query);
     res.json(reviews);
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -124,6 +144,12 @@ const getVerifiedReviews = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
+
+
+    // ==========================================
+    // route parameters
+    // ==========================================
+
 
 // @desc    Fetch reviews by country
 const getReviewsByCountry = async (req, res) => {
@@ -339,6 +365,16 @@ const getReviewsByImageStatus = async (req, res) => {
   }
 };
 
+// @desc    Fetch reviews by device name
+const getReviewsByDevice = async (req, res) => {
+  try {
+    const reviews = await Review.find({ device: req.params.deviceName });
+    res.json(reviews);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
 module.exports = {
   getAllReviews,
   getReviewById,
@@ -366,5 +402,6 @@ module.exports = {
   getReviewsByHelpfulnessScore,
   getReviewsByProfile,
   getReviewLink,
-  getReviewsByImageStatus
+  getReviewsByImageStatus,
+  getReviewsByDevice
 };
