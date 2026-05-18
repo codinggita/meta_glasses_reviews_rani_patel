@@ -27,9 +27,18 @@ const {
   getReviewsByHelpfulnessScore,
   getReviewsByProfile,
   getReviewLink,
-  getReviewsByImageStatus
+  getReviewsByImageStatus,
+  getReviewsByDevice
 } = require('../controllers/review.controller');
 
+// ==========================================
+// QUERY PARAMETERS (Handled by the root route)
+// E.g., /api/v1/reviews?rating=5
+// E.g., /api/v1/reviews?country=United States
+// E.g., /api/v1/reviews?verifiedPurchase=True
+// E.g., /api/v1/reviews?positive=1
+// E.g., /api/v1/reviews?minHelpful=100
+// ==========================================
 // Main routes for /api/v1/reviews
 router.route('/')
   .get(getAllReviews)
@@ -43,7 +52,9 @@ router.get('/verified', getVerifiedReviews);
 // Statistics routes
 router.get('/stats/country/:country', getCountryStats);
 
-// Route Parameters Filters
+// ==========================================
+// ROUTE PARAMETERS
+// ==========================================
 router.get('/country/:country/reviews', getReviewsByCountry);
 router.get('/ratings/:rating', getReviewsByRating);
 router.get('/verified/:status', getReviewsByVerifiedStatus);
@@ -57,6 +68,7 @@ router.get('/helpfulness/:score', getReviewsByHelpfulnessScore);
 router.get('/profile/:profileID', getReviewsByProfile);
 router.get('/review-link/:reviewID', getReviewLink);
 router.get('/image/:status', getReviewsByImageStatus);
+router.get('/device/:deviceName', getReviewsByDevice);
 
 // Time-based Filters
 router.get('/year/:year', getReviewsByYear);
